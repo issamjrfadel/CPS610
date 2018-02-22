@@ -1,0 +1,72 @@
+CREATE TABLE professor (
+	    ProfName    VARCHAR2(25) PRIMARY KEY,
+		EngOffice	VARCHAR2(10),
+		EngfPhone	VARCHAR2(20),
+        SciOffice	VARCHAR2(10),
+		SciPhone	VARCHAR2(20)
+        );
+  
+CREATE TABLE student (
+	    StudentNo   INT PRIMARY KEY,
+		StudentName	VARCHAR2(10),
+		Degree	VARCHAR2(12),
+        GPA	VARCHAR2(12)
+        );
+        
+CREATE TABLE course (
+        CourseNo INT PRIMARY KEY,
+        CourseName VARCHAR2(20),
+        Credits INT
+        );
+        
+CREATE TABLE can_teach (
+        ProfName VARCHAR2(20) REFERENCES professor (ProfName),
+        CourseNo INT REFERENCES course (CourseNo),
+        Preference VARCHAR2(10),
+        Evaluation VARCHAR2(10),
+        PRIMARY KEY (Profname, CourseNo)
+        );
+        
+CREATE TABLE teaches (
+		CourseNo	NUMBER REFERENCES course (CourseNo),
+		ProfName	VARCHAR2(25) REFERENCES professor (ProfName),
+		Term		CHAR NOT NULL,
+		PRIMARY KEY (CourseNo, ProfName)
+        );
+        
+CREATE TABLE enrolled (
+	StudentNo	NUMBER REFERENCES student(StudentNo),
+    CourseNo	NUMBER,
+	ProfName	VARCHAR2(25),
+	Status	    CHAR NOT NULL,
+	PRIMARY KEY (StudentNo, CourseNo, ProfName),
+	FOREIGN KEY (CourseNo, ProfName) 
+			REFERENCES teaches(CourseNo, ProfName)
+);
+ 
+ INSERT INTO professor (ProfName, EngOffice, EngPhone, SciOffice, SciPhone)
+    select 'Kevin', 'ENG201', '416-567-1234', 'SCI213', '671-289-0987' from dual
+union all
+    select 'Smith', 'ENG211', '416-897-1123', 'SCI283', '671-219-9127' from dual
+union all
+    select 'Sarah', 'ENG241', '416-597-1094', 'SCI334', '671-209-0234' from dual
+union all
+    select 'Lisa', 'ENG221', '416-027-1444', 'SCI293', '671-129-0127' from dual;
+   
+INSERT INTO student (StudentNo, StudentName, Degree, GPA)
+    select '5001234567', 'Sam', 'BSC', '3.0' from dual
+union all
+    select '5001234352', 'Kevin', 'MSC', '4.0' from dual
+union all
+    select '5002342398', 'Ali', 'BSC', '3.66' from dual
+union all
+    select '5002347023', 'Sally', 'BSC', '2.67' from dual;
+    
+INSERT INTO course (COURSENO, COURSENAME, CREDITS)
+    select 616, 'Database 2', 1 from dual
+union all
+    select 530, 'Webdev', 1 from dual
+union all
+    select 510, 'Database 1', 1 from dual
+union all
+    select 209, 'computer science 1', 1 from dual;
