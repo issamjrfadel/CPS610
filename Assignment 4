@@ -2,21 +2,21 @@ CREATE TABLE professor (
 	    ProfName    VARCHAR2(25) PRIMARY KEY,
 		EngOffice	VARCHAR2(10),
 		EngfPhone	VARCHAR2(20),
-        SciOffice	VARCHAR2(10),
+       	        SciOffice	VARCHAR2(10),
 		SciPhone	VARCHAR2(20)
         );
   
 CREATE TABLE student (
-	    StudentNo   INT PRIMARY KEY,
+	   	StudentNo   INT PRIMARY KEY,
 		StudentName	VARCHAR2(10),
-		Degree	VARCHAR2(12),
-        GPA	VARCHAR2(12)
+		Degree		VARCHAR2(12),
+       	        GPA		VARCHAR2(12)
         );
         
 CREATE TABLE course (
-        CourseNo INT PRIMARY KEY,
-        CourseName VARCHAR2(20),
-        Credits INT
+        	CourseNo   INT PRIMARY KEY,
+        	CourseName     VARCHAR2(20),
+        	Credits    INT
         );
         
 CREATE TABLE can_teach (
@@ -36,7 +36,7 @@ CREATE TABLE teaches (
         
 CREATE TABLE enrolled (
 	StudentNo	NUMBER REFERENCES student(StudentNo),
-    CourseNo	NUMBER,
+    	CourseNo	NUMBER,
 	ProfName	VARCHAR2(25),
 	Status	    CHAR NOT NULL,
 	PRIMARY KEY (StudentNo, CourseNo, ProfName),
