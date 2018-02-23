@@ -1,7 +1,14 @@
+DROP TABLE enrolled cascade constraints;
+DROP TABLE central_teaches cascade constraints;
+DROP TABLE central_can_teach cascade constraints;
+DROP TABLE central_student cascade constraints;
+DROP TABLE central_professor cascade constraints;
+DROP TABLE central_course cascade constraints;
+
 CREATE TABLE central_professor (
 	    ProfName    VARCHAR2(25) PRIMARY KEY,
 		EngOffice	VARCHAR2(10),
-		EngfPhone	VARCHAR2(20),
+		EngPhone	VARCHAR2(20),
        	        SciOffice	VARCHAR2(10),
 		SciPhone	VARCHAR2(20)
         );
@@ -10,8 +17,8 @@ CREATE TABLE central_student (
 	   	StudentNo   INT PRIMARY KEY,
 		StudentName	VARCHAR2(10),
 		Degree		VARCHAR2(12),
-       	        GPA		VARCHAR2(12),
-								Faculty VARCHAR2(12)
+        GPA		VARCHAR2(12),
+        Faculty VARCHAR2(12)
         );
 
 CREATE TABLE central_course (
@@ -21,28 +28,28 @@ CREATE TABLE central_course (
         );
 
 CREATE TABLE central_can_teach (
-        ProfName VARCHAR2(20) REFERENCES professor (ProfName),
-        CourseNo INT REFERENCES course (CourseNo),
+        ProfName VARCHAR2(20) REFERENCES central_professor (ProfName),
+        CourseNo INT REFERENCES central_course (CourseNo),
         Preference VARCHAR2(10),
         Evaluation VARCHAR2(10),
         PRIMARY KEY (Profname, CourseNo)
         );
 
 CREATE TABLE central_teaches (
-		CourseNo	NUMBER REFERENCES course (CourseNo),
-		ProfName	VARCHAR2(25) REFERENCES professor (ProfName),
-		Term		CHAR NOT NULL,
+		CourseNo	NUMBER REFERENCES central_course (CourseNo),
+		ProfName	VARCHAR2(25) REFERENCES central_professor (ProfName),
+		Term		VARCHAR(20) NOT NULL,
 		PRIMARY KEY (CourseNo, ProfName)
         );
 
 CREATE TABLE enrolled (
-	StudentNo	NUMBER REFERENCES student(StudentNo),
-    	CourseNo	NUMBER,
+	StudentNo	NUMBER REFERENCES central_student(StudentNo),
+    CourseNo	NUMBER,
 	ProfName	VARCHAR2(25),
-	Status	    CHAR NOT NULL,
+	Status	    VARCHAR2 (20) NOT NULL,
 	PRIMARY KEY (StudentNo, CourseNo, ProfName),
 	FOREIGN KEY (CourseNo, ProfName)
-			REFERENCES teaches(CourseNo, ProfName)
+			REFERENCES central_teaches(CourseNo, ProfName)
 );
 
  INSERT INTO central_professor (ProfName, EngOffice, EngPhone, SciOffice, SciPhone)
@@ -72,16 +79,16 @@ union all
 union all
     select 209, 'computer science 1', 1 from dual;
 
-INSERT INTO can_teach (COURSENO, ProfName, Preference, Evaluation)
+INSERT INTO central_can_teach (COURSENO, ProfName, Preference, Evaluation)
 	select 610, 'Kevin', 610, 'good' from dual
 union all
 	select 510, 'Kevin', 610, 'good' from dual
 union all
 	select 510, 'Smith', 510, 'great' from dual
 union all
-	select 530, 'Sarah', 530, 'good', from dual
+	select 530, 'Sarah', 530, 'good' from dual
 union all
-	select 209, 'Lisa', 209, 'Excellent', from dual;
+	select 209, 'Lisa', 209, 'Excellent' from dual;
 
 
 INSERT INTO central_teaches (CourseNo, ProfName, Term)
@@ -91,7 +98,7 @@ union all
 union all
 	select 530, 'Sarah', 'Winter' from dual
 union all
-	select 209, ' Lisa', 'Summer' from dual;
+	select 209, 'Lisa', 'Summer' from dual;
 
 
 INSERT INTO enrolled (StudentNo, COURSENO, ProfName, Status)
@@ -102,3 +109,38 @@ union all
 	select 5002342398, 530, 'Sarah', 'enrolled' from dual
 union all
 	select 5002347023, 209, 'Lisa', 'enrolled' from dual;
+
+
+	CREATE TABLE science_professor
+			AS
+			SELECT ProfName, SciOffice, SciPhone
+			FROM central_professor;
+
+CREATE TABLE science_student
+    AS
+    SELECT *
+    FROM central_student
+    WHERE Faculty = 'SCI';
+
+		CREATE TABLE science_courses
+				AS
+				SELECT *
+				FROM central_course
+				WHERE COURSENO < 500;
+
+		CREATE TABLE science_can_teach
+		AS
+		SELECT *
+		FROM central_can_teach
+		WHERE COURSENO < 500;
+
+		CREATE TABLE science_teaches
+		AS
+		SELECT *
+		FROM central_teaches
+		WHERE COURSENO < 500;
+
+	K so the above command worked and all the code above it
+	too we can't do select Into
+
+	Lets add the Science professors first for the first server
