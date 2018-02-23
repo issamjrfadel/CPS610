@@ -4,12 +4,17 @@ DROP TABLE central_can_teach cascade constraints;
 DROP TABLE central_student cascade constraints;
 DROP TABLE central_professor cascade constraints;
 DROP TABLE central_course cascade constraints;
+DROP TABLE science_can_teach;
+DROP TABLE science_courses;
+DROP TABLE science_professor;
+DROP TABLE science_student;
+DROP TABLE science_teaches;
 
 CREATE TABLE central_professor (
 	    ProfName    VARCHAR2(25) PRIMARY KEY,
 		EngOffice	VARCHAR2(10),
 		EngPhone	VARCHAR2(20),
-       	        SciOffice	VARCHAR2(10),
+        SciOffice	VARCHAR2(10),
 		SciPhone	VARCHAR2(20)
         );
 
@@ -62,13 +67,13 @@ union all
     select 'Lisa', 'ENG221', '416-027-1444', 'SCI293', '671-129-0127' from dual;
 
 INSERT INTO central_student (StudentNo, StudentName, Degree, GPA, Faculty)
-    select 5001234567, 'Sam', 'BSC', '3.0', 'ENG' from dual
+    select 5001234567, 'Sam', 'BSC', '5.0', 'ENG' from dual
 union all
-    select 5001234352, 'Kevin', 'MSC', '4.0', 'SCI' from dual
+    select 5001234352, 'Kevin', 'MSC', '14.0', 'SCI' from dual
 union all
-    select 5002342398, 'Ali', 'BSC', '3.66', 'SCI' from dual
+    select 5002342398, 'Ali', 'BSC', '13.66', 'SCI' from dual
 union all
-    select 5002347023, 'Sally', 'BSC', '2.67', 'ENG' from dual;
+    select 5002347023, 'Sally', 'BSC', '7.67', 'ENG' from dual;
 
 INSERT INTO central_course (COURSENO, COURSENAME, CREDITS)
     select 610, 'Database 2', 1 from dual
@@ -110,6 +115,8 @@ union all
 union all
 	select 5002347023, 209, 'Lisa', 'enrolled' from dual;
 
+	///////////////Science Tables////////////////
+
 
 	CREATE TABLE science_professor
 			AS
@@ -140,7 +147,58 @@ CREATE TABLE science_student
 		FROM central_teaches
 		WHERE COURSENO < 500;
 
-	K so the above command worked and all the code above it
-	too we can't do select Into
+///////////////Engineering Tables////////////////
 
-	Lets add the Science professors first for the first server
+DROP TABLE engineering_can_teach;
+DROP TABLE engineering_courses;
+DROP TABLE engineering_professor;
+DROP TABLE engineering_student;
+DROP TABLE engineering_teaches;
+
+CREATE TABLE engineering_professor
+		AS
+		SELECT ProfName, EngOffice, EngPhone
+		FROM central_professor@oracle12c.scs.ryerson.ca;
+
+CREATE TABLE engineering_student
+	AS
+	SELECT *
+	FROM central_student@oracle12c.scs.ryerson.ca
+	WHERE Faculty = 'ENG';
+
+	CREATE TABLE engineering_courses
+			AS
+			SELECT *
+			FROM central_course@oracle12c.scs.ryerson.ca
+			WHERE COURSENO >= 500;
+
+	CREATE TABLE engineering_can_teach
+	AS
+	SELECT *
+	FROM central_can_teach@oracle12c.scs.ryerson.ca
+	WHERE COURSENO >= 500;
+
+	CREATE TABLE engineering_teaches
+	AS
+	SELECT *
+	FROM central_teaches@oracle12c.scs.ryerson.ca
+	WHERE COURSENO >= 500;
+
+
+	/////QUERIES///
+SELECT courseName FROM engineering_courses
+UNION
+SELECT courseName FROM science_courses@oracle12c.scs.ryerson.ca;
+
+SELECT StudentName, GPA FROM engineering_student
+WHERE GPA >10
+UNION
+SELECT StudentName, GPA FROM science_student@oracle12c.scs.ryerson.ca
+WHERE GPA >10;
+
+SELECT central_student.StudentNo, StudentName, CourseName, central_course.CourseNo
+FROM   enrolled@oracle12c.scs.ryerson.ca, central_student@oracle12c.scs.ryerson.ca
+, central_course@oracle12c.scs.ryerson.ca
+WHERE  ProfName = 'Smith'
+AND  enrolled.CourseNo = central_course.CourseNo
+AND  enrolled.StudentNo = central_student.StudentNo;
