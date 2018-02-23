@@ -1,50 +1,51 @@
-CREATE TABLE professor (
+CREATE TABLE central_professor (
 	    ProfName    VARCHAR2(25) PRIMARY KEY,
 		EngOffice	VARCHAR2(10),
 		EngfPhone	VARCHAR2(20),
        	        SciOffice	VARCHAR2(10),
 		SciPhone	VARCHAR2(20)
         );
-  
-CREATE TABLE student (
+
+CREATE TABLE central_student (
 	   	StudentNo   INT PRIMARY KEY,
 		StudentName	VARCHAR2(10),
 		Degree		VARCHAR2(12),
-       	        GPA		VARCHAR2(12)
+       	        GPA		VARCHAR2(12),
+								Faculty VARCHAR2(12)
         );
-        
-CREATE TABLE course (
+
+CREATE TABLE central_course (
         	CourseNo   INT PRIMARY KEY,
         	CourseName     VARCHAR2(20),
         	Credits    INT
         );
-        
-CREATE TABLE can_teach (
+
+CREATE TABLE central_can_teach (
         ProfName VARCHAR2(20) REFERENCES professor (ProfName),
         CourseNo INT REFERENCES course (CourseNo),
         Preference VARCHAR2(10),
         Evaluation VARCHAR2(10),
         PRIMARY KEY (Profname, CourseNo)
         );
-        
-CREATE TABLE teaches (
+
+CREATE TABLE central_teaches (
 		CourseNo	NUMBER REFERENCES course (CourseNo),
 		ProfName	VARCHAR2(25) REFERENCES professor (ProfName),
 		Term		CHAR NOT NULL,
 		PRIMARY KEY (CourseNo, ProfName)
         );
-        
+
 CREATE TABLE enrolled (
 	StudentNo	NUMBER REFERENCES student(StudentNo),
     	CourseNo	NUMBER,
 	ProfName	VARCHAR2(25),
 	Status	    CHAR NOT NULL,
 	PRIMARY KEY (StudentNo, CourseNo, ProfName),
-	FOREIGN KEY (CourseNo, ProfName) 
+	FOREIGN KEY (CourseNo, ProfName)
 			REFERENCES teaches(CourseNo, ProfName)
 );
- 
- INSERT INTO professor (ProfName, EngOffice, EngPhone, SciOffice, SciPhone)
+
+ INSERT INTO central_professor (ProfName, EngOffice, EngPhone, SciOffice, SciPhone)
     select 'Kevin', 'ENG201', '416-567-1234', 'SCI213', '671-289-0987' from dual
 union all
     select 'Smith', 'ENG211', '416-897-1123', 'SCI283', '671-219-9127' from dual
@@ -52,21 +53,52 @@ union all
     select 'Sarah', 'ENG241', '416-597-1094', 'SCI334', '671-209-0234' from dual
 union all
     select 'Lisa', 'ENG221', '416-027-1444', 'SCI293', '671-129-0127' from dual;
-   
-INSERT INTO student (StudentNo, StudentName, Degree, GPA)
-    select '5001234567', 'Sam', 'BSC', '3.0' from dual
+
+INSERT INTO central_student (StudentNo, StudentName, Degree, GPA, Faculty)
+    select 5001234567, 'Sam', 'BSC', '3.0', 'ENG' from dual
 union all
-    select '5001234352', 'Kevin', 'MSC', '4.0' from dual
+    select 5001234352, 'Kevin', 'MSC', '4.0', 'SCI' from dual
 union all
-    select '5002342398', 'Ali', 'BSC', '3.66' from dual
+    select 5002342398, 'Ali', 'BSC', '3.66', 'SCI' from dual
 union all
-    select '5002347023', 'Sally', 'BSC', '2.67' from dual;
-    
-INSERT INTO course (COURSENO, COURSENAME, CREDITS)
-    select 616, 'Database 2', 1 from dual
+    select 5002347023, 'Sally', 'BSC', '2.67', 'ENG' from dual;
+
+INSERT INTO central_course (COURSENO, COURSENAME, CREDITS)
+    select 610, 'Database 2', 1 from dual
 union all
     select 530, 'Webdev', 1 from dual
 union all
     select 510, 'Database 1', 1 from dual
 union all
     select 209, 'computer science 1', 1 from dual;
+
+INSERT INTO can_teach (COURSENO, ProfName, Preference, Evaluation)
+	select 610, 'Kevin', 610, 'good' from dual
+union all
+	select 510, 'Kevin', 610, 'good' from dual
+union all
+	select 510, 'Smith', 510, 'great' from dual
+union all
+	select 530, 'Sarah', 530, 'good', from dual
+union all
+	select 209, 'Lisa', 209, 'Excellent', from dual;
+
+
+INSERT INTO central_teaches (CourseNo, ProfName, Term)
+	select 610, 'Kevin', 'Winter' from dual
+union all
+	select 510, 'Smith', 'Fall' from dual
+union all
+	select 530, 'Sarah', 'Winter' from dual
+union all
+	select 209, ' Lisa', 'Summer' from dual;
+
+
+INSERT INTO enrolled (StudentNo, COURSENO, ProfName, Status)
+	select 5001234567, 610, 'Kevin', 'enrolled' from dual
+union all
+	select 5001234352, 510, 'Smith', 'enrolled' from dual
+union all
+	select 5002342398, 530, 'Sarah', 'enrolled' from dual
+union all
+	select 5002347023, 209, 'Lisa', 'enrolled' from dual;
