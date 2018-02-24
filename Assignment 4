@@ -202,3 +202,21 @@ FROM   enrolled@oracle12c.scs.ryerson.ca, central_student@oracle12c.scs.ryerson.
 WHERE  ProfName = 'Smith'
 AND  enrolled.CourseNo = central_course.CourseNo
 AND  enrolled.StudentNo = central_student.StudentNo;
+
+Select ProfName FROM engineering_professor ep, engineering_can_teach ect, engineering_teaches t
+	WHERE ep.ProfName = et.ProfName
+	AND et.CourseNo = ect.CourseNo 
+	and ect.preference = ‘No’
+UNION 
+Select ProfName FROM science_professor sp, science_can_teach sct, science_teaches st
+	WHERE sp.ProfName = st.ProfName
+	AND st.CourseNo = sct.CourseNo 
+	and sct.preference = ‘No’
+
+Select StudentName from engineering_student es, engineering_enrolled ee
+	WHERE es.StudentNo = ee.studentNo
+	AND ee.CourseNo = acoursenumber 
+UNION 
+Select StudentName from science_student ss, science_enrolled se
+	WHERE ss.StudentNo = se.studentNo
+	AND se.CourseNo = acoursenumber ;
