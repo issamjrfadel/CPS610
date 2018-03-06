@@ -218,3 +218,5 @@ CREATE TABLE engineering_student
 	Select StudentName from science_student@oracle12c.scs.ryerson.ca ss, enrolled@oracle12c.scs.ryerson.ca
 		WHERE ss.StudentNo = enrolled.studentNo
 		AND enrolled.CourseNo = 510 ;
+
+		2 more queries
