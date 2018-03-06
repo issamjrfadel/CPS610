@@ -211,12 +211,12 @@ CREATE TABLE engineering_student
 		WHERE sp.ProfName = st.ProfName
 		AND st.CourseNo = sct.CourseNo;
 
-	Select StudentName from engineering_student es, enrolled@oracle12c.scs.ryerson.ca
-		WHERE es.StudentNo = enrolled.studentNo
-		AND enrolled.CourseNo = 510
-	UNION
-	Select StudentName from science_student@oracle12c.scs.ryerson.ca ss, enrolled@oracle12c.scs.ryerson.ca
-		WHERE ss.StudentNo = enrolled.studentNo
-		AND enrolled.CourseNo = 510 ;
+		Select StudentName, enrolled.courseNo from engineering_student es, enrolled@oracle12c.scs.ryerson.ca
+			WHERE es.StudentNo = enrolled.studentNo
+			AND enrolled.CourseNo < 510
+		UNION
+		Select StudentName, enrolled.CourseNo from science_student@oracle12c.scs.ryerson.ca ss, enrolled@oracle12c.scs.ryerson.ca
+			WHERE ss.StudentNo = enrolled.studentNo
+			AND enrolled.CourseNo > 510;
 
 		2 more queries
