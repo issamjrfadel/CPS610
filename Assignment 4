@@ -219,4 +219,12 @@ CREATE TABLE engineering_student
 			WHERE ss.StudentNo = enrolled.studentNo
 			AND enrolled.CourseNo > 510;
 
+			SELECT studentName, studentNo FROM engineering_student
+NATURAL JOIN
+(select * from enrolled@oracle12c.scs.ryerson.ca where courseNo < 500)
+UNION
+SELECT studentName, studentNo FROM science_student@oracle12c.scs.ryerson.ca
+NATURAL JOIN
+(select * from enrolled@oracle12c.scs.ryerson.ca where courseNo > 500);
+
 		2 more queries
