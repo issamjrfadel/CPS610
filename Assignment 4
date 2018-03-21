@@ -71,9 +71,9 @@ INSERT INTO central_student (StudentNo, StudentName, Degree, GPA, Faculty)
 union all
     select 5001234352, 'Kevin', 'MSC', '14.0', 'SCI' from dual
 union all
-    select 5002342398, 'Ali', 'BSC', '13.66', 'SCI' from dual
+    select 5002342398, 'Ali', 'BSC', '13.66', 'ENG' from dual
 union all
-    select 5002347023, 'Sally', 'BSC', '7.67', 'ENG' from dual;
+    select 5002347023, 'Sally', 'BSC', '7.67', 'SCI' from dual;
 
 INSERT INTO central_course (COURSENO, COURSENAME, CREDITS)
     select 610, 'Database 2', 1 from dual
@@ -86,8 +86,6 @@ union all
 
 INSERT INTO central_can_teach (COURSENO, ProfName, Preference, Evaluation)
 	select 610, 'Kevin', 610, 'good' from dual
-union all
-	select 510, 'Kevin', 610, 'good' from dual
 union all
 	select 510, 'Smith', 510, 'great' from dual
 union all
@@ -115,14 +113,11 @@ union all
 union all
 	select 5002347023, 209, 'Lisa', 'enrolled' from dual;
 
-	///////////////Science Tables////////////////
-
-
 	CREATE TABLE science_professor
 			AS
 			SELECT ProfName, SciOffice, SciPhone
 			FROM central_professor;
-
+			
 CREATE TABLE science_student
     AS
     SELECT *
@@ -146,8 +141,8 @@ CREATE TABLE science_student
 		SELECT *
 		FROM central_teaches
 		WHERE COURSENO < 500;
-
-///////////////Engineering Tables////////////////
+		
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 DROP TABLE engineering_can_teach;
 DROP TABLE engineering_courses;
@@ -183,48 +178,65 @@ CREATE TABLE engineering_student
 	SELECT *
 	FROM central_teaches@oracle12c.scs.ryerson.ca
 	WHERE COURSENO >= 500;
+    
+SELECT courseName FROM engineering_courses
+UNION
+SELECT courseName FROM science_courses@oracle12c.scs.ryerson.ca;
 
+SELECT StudentName, GPA FROM engineering_student
+WHERE GPA >10
+UNION
+SELECT StudentName, GPA FROM science_student@oracle12c.scs.ryerson.ca
+WHERE GPA >10;
 
-	/////QUERIES///
-	SELECT courseName FROM engineering_courses
-	UNION
-	SELECT courseName FROM science_courses@oracle12c.scs.ryerson.ca;
+SELECT central_student.StudentNo, StudentName, CourseName, central_course.CourseNo
+FROM   enrolled@oracle12c.scs.ryerson.ca, central_student@oracle12c.scs.ryerson.ca
+, central_course@oracle12c.scs.ryerson.ca
+WHERE  ProfName = 'Smith'
+AND  enrolled.CourseNo = central_course.CourseNo
+AND  enrolled.StudentNo = central_student.StudentNo;
 
-	SELECT StudentName, GPA FROM engineering_student
-	WHERE GPA >10
-	UNION
-	SELECT StudentName, GPA FROM science_student@oracle12c.scs.ryerson.ca
-	WHERE GPA >10;
+Select ep.ProfName FROM engineering_professor ep, engineering_can_teach ect, engineering_teaches et
+	WHERE ep.ProfName = et.ProfName
+	AND et.CourseNo = ect.CourseNo
+UNION
+Select sp.ProfName FROM science_professor@oracle12c.scs.ryerson.ca sp, science_can_teach@oracle12c.scs.ryerson.ca sct, science_teaches@oracle12c.scs.ryerson.ca st
+	WHERE sp.ProfName = st.ProfName
+	AND st.CourseNo = sct.CourseNo;
 
-	SELECT central_student.StudentNo, StudentName, CourseName, central_course.CourseNo
-	FROM   enrolled@oracle12c.scs.ryerson.ca, central_student@oracle12c.scs.ryerson.ca
-	, central_course@oracle12c.scs.ryerson.ca
-	WHERE  ProfName = 'Smith'
-	AND  enrolled.CourseNo = central_course.CourseNo
-	AND  enrolled.StudentNo = central_student.StudentNo;
+Select StudentName, enrolled.courseNo from engineering_student es, enrolled@oracle12c.scs.ryerson.ca
+	WHERE es.StudentNo = enrolled.studentNo
+	AND enrolled.CourseNo < 510
+UNION 
+Select StudentName, enrolled.CourseNo from science_student@oracle12c.scs.ryerson.ca ss, enrolled@oracle12c.scs.ryerson.ca 
+	WHERE ss.StudentNo = enrolled.studentNo
+	AND enrolled.CourseNo > 510;
 
-	Select ep.ProfName FROM engineering_professor ep, engineering_can_teach ect, engineering_teaches et
-		WHERE ep.ProfName = et.ProfName
-		AND et.CourseNo = ect.CourseNo
-	UNION
-	Select sp.ProfName FROM science_professor@oracle12c.scs.ryerson.ca sp, science_can_teach@oracle12c.scs.ryerson.ca sct, science_teaches@oracle12c.scs.ryerson.ca st
-		WHERE sp.ProfName = st.ProfName
-		AND st.CourseNo = sct.CourseNo;
-
-		Select StudentName, enrolled.courseNo from engineering_student es, enrolled@oracle12c.scs.ryerson.ca
-			WHERE es.StudentNo = enrolled.studentNo
-			AND enrolled.CourseNo < 510
-		UNION
-		Select StudentName, enrolled.CourseNo from science_student@oracle12c.scs.ryerson.ca ss, enrolled@oracle12c.scs.ryerson.ca
-			WHERE ss.StudentNo = enrolled.studentNo
-			AND enrolled.CourseNo > 510;
-
-			SELECT studentName, studentNo FROM engineering_student
-NATURAL JOIN
+SELECT studentName, studentNo FROM engineering_student
+NATURAL JOIN 
 (select * from enrolled@oracle12c.scs.ryerson.ca where courseNo < 500)
 UNION
 SELECT studentName, studentNo FROM science_student@oracle12c.scs.ryerson.ca
-NATURAL JOIN
+NATURAL JOIN 
 (select * from enrolled@oracle12c.scs.ryerson.ca where courseNo > 500);
 
-		2 more queries
+Select ep.ProfName FROM engineering_professor ep, engineering_can_teach ect, engineering_teaches et
+	WHERE ep.ProfName = et.ProfName
+	AND et.CourseNo = ect.CourseNo 
+	AND ect.preference = 510;
+    
+set serveroutput on;
+DECLARE
+  caplimit INTEGER;
+BEGIN
+select count(StudentName) into caplimit from science_student@oracle12c.scs.ryerson.ca;
+IF ( caplimit >= 20 ) THEN
+    dbms_output.put_line('Course limit of 20 reached');
+  ELSE
+    insert into engineering_student values ('5001234352','Kevin','MSC', '14.0', 'SCI');
+    dbms_output.put_line('Added new student from enrolled_sci_course');
+    delete from science_student@oracle12c.scs.ryerson.ca where studentname = 'Kevin';
+    dbms_output.put_line('Removed new student from enrolled_eng_course');
+  END IF;
+END;
+
